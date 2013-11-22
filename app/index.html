@@ -6,14 +6,22 @@
   <link rel="stylesheet" href="css/app.css"/>
 </head>
 <body>
-  <ul class="menu">
-    <li><a href="#/view1">view1</a></li>
-    <li><a href="#/view2">view2</a></li>
-  </ul>
 
   <div ng-view></div>
 
   <div>Angular seed app: v<span app-version></span></div>
+
+  <div ng-app="">
+      <h1>Music app</h1>
+      <div ng-controller="MusicCtrl">
+
+          <button ng-click="makePlaylist()">Load artists</button>
+          <div>{{result}}</div>
+          <button ng-click="sendTastes()">Load tasteProfile</button>
+
+      </div>
+
+  </div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
