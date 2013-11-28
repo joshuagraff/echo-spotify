@@ -20,6 +20,9 @@
           <div>{{topArtists}}</div>
           <button ng-click="sendTastes()">Load tasteProfile</button>
           <button ng-click="getRandomPlaylist()">Show me some new songs!</button>
+          <ul style="list-style-type: none;" ng-repeat="song in playlistSongs">
+              <li>{{song}}</li>
+          </ul>
       </div>
 
   </div>
