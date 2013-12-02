@@ -31,7 +31,7 @@ function MusicCtrl($scope, $http) {
         $http({
             'method':'POST',
             'url': 'http://developer.echonest.com/api/v4/catalog/create?api_key=VOW1HBCF5U0DHVUDM',
-            'params': { 'format':'json', 'name': "echoSpotify_dev_tracks"},
+            'params': { 'format':'json', 'name': "echoSpotify_dev_tracks_generic"},
             'data': {},
             'headers': {"Content-Type":"multipart/form-data"},
             'cache':false
@@ -84,7 +84,7 @@ function MusicCtrl($scope, $http) {
         for(var i =0; i<$scope.tracks.length; i++){
             var trackUID = $scope.tracks[i].replace("spotify","spotify-WW");
 
-            trackJson.push({item: {item_id:"trackID-"+trackUID, track_id:trackUID}});
+            trackJson.push({item: {item_id:"trackID-"+i+"-"+trackUID, track_id:trackUID}});
         }
         alert(JSON.stringify(trackJson));
         return {data: JSON.stringify(trackJson)};
