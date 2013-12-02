@@ -91,10 +91,14 @@ function MusicCtrl($scope, $http) {
     }
 
     $scope.getRandomPlaylist = function() {
+        var minVariety = .6;
+        var varietyVal = Math.random() * (.2) + minVariety;
         $http({
             method:'GET',
             url: 'http://developer.echonest.com/api/v4/playlist/static?api_key=VOW1HBCF5U0DHVUDM&bucket=tracks',
-            params: { 'seed_catalog': $scope.profileID, 'format': 'json', 'results': 50, 'type':'catalog-radio', 'bucket':'id:spotify-WW', 'adventurousness':.9}
+            params: { 'seed_catalog': $scope.profileID, 'format': 'json', 'results': 50, 'type':'catalog-radio', 'bucket':'id:spotify-WW', 'adventurousness':1, 'distribution':'wandering', 'variety':varietyVal},
+            headers:{ 'Cache-Control':'private, no-store, max-age=0'},
+            cache: false
         })
 
             .success(function(data){
