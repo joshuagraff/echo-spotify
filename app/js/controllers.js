@@ -18,7 +18,7 @@ angular.module('myApp.controllers', []).
             $http({
                 'method':'POST',
                 'url': 'http://developer.echonest.com/api/v4/catalog/create?api_key=VOW1HBCF5U0DHVUDM',
-                'params': { 'format':'json', 'name': "echoSpotify_dev_tracks"},
+                'params': { 'format':'json', 'name': "echoSpotify_default"},
                 'data': {},
                 'headers': {"Content-Type":"multipart/form-data"},
                 'cache':false
