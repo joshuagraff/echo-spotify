@@ -7,25 +7,11 @@
 </head>
 <body>
 
-  <div ng-view></div>
+  <div class="app-view" ng-view></div>
 
   <div>Angular seed app: v<span app-version></span></div>
 
-  <div ng-app="">
-      <h1>Music app</h1>
-      <div ng-controller="MusicCtrl">
 
-          <button ng-click="makePlaylist()">Load artists</button>
-          <div>{{result}}</div>
-          <div>{{topArtists}}</div>
-          <button ng-click="sendTastes()">Load tasteProfile</button>
-          <button ng-click="getRandomPlaylist()">Show me some new songs!</button>
-          <ul style="list-style-type: none;" ng-repeat="song in playlistSongs">
-              <li>{{song}}</li>
-          </ul>
-      </div>
-
-  </div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
