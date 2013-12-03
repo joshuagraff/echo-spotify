@@ -2,10 +2,12 @@
     <h1>Music app</h1>
     <div ng-controller="MusicCtrl">
         <p>Your taste profile ID: {{profileID}}</p>
-        <button ng-click="makePlaylist()">Load songs</button>
+        <p><button ng-click="makePlaylist()">Load songs</button></p>
         <p>Total song count: {{trackCount}}</p>
-        <button ng-click="sendTastes()">Load tasteProfile</button>
-        <button ng-click="getRandomPlaylist()">Show me some new songs!</button>
+        <p>
+            <button ng-click="sendTastes()">Load tasteProfile</button>
+            <button ng-click="getRandomPlaylist()">Show me some new songs!</button>
+        </p>
         <div ng-if="mainstreamness != null && freshness != null">
             <p>
                 Mainstreamness: {{mainstreamness}}%
