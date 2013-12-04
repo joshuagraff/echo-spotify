@@ -11,14 +11,22 @@ angular.module('myApp.controllers', []).
         $scope.playlistSongs = [];
         $scope.mainstreamness = App.getLocalObject('mainstreamness');
         $scope.freshness = App.getLocalObject('freshness');
+        $scope.anonUserID = null;
 
+
+        require(['$api/models','$api/models#User','$api/models#Session'], function(models) {
+            var user = models.User.fromURI('spotify:user:@');
+            user.load('username', 'name').done(function(u) {
+                $scope.anonUserID = u.identifier;
+            });
+        });
 
         $scope.makePlaylist = function(){
 
             $http({
                 'method':'POST',
                 'url': 'http://developer.echonest.com/api/v4/catalog/create?api_key=VOW1HBCF5U0DHVUDM',
-                'params': { 'format':'json', 'name': "echoSpotify_default"},
+                'params': { 'format':'json', 'name': "echoSpotify_profile_"+$scope.anonUserID},
                 'data': {},
                 'headers': {"Content-Type":"multipart/form-data"},
                 'cache':false
@@ -69,7 +77,6 @@ angular.module('myApp.controllers', []).
             require(['$api/toplists#Toplist'], function(Toplist) {
                 var toplist = Toplist.forCurrentUser();
                 toplist.artists.snapshot().done(function(userTopArtists){
-                    alert(JSON.stringify(userTopArtists));
                     if(userTopArtists["_meta"]){
                         $scope.topArtists = userTopArtists["_meta"];
                         App.storeLocalObject('topArtists',JSON.stringify($scope.topArtists));
@@ -102,7 +109,6 @@ angular.module('myApp.controllers', []).
             })
 
                 .success(function(data){
-                    alert(JSON.stringify(data));
                     var songs = data["response"]["songs"];
 
                     for(var i=0; i<songs.length; i++){
@@ -111,7 +117,6 @@ angular.module('myApp.controllers', []).
                         }
 
                     }
-                    alert($scope.playlistSongs);
                     if($scope.playlistSongs.length != 0){
                         require(['$api/models'], function(models) {
                             models.Playlist.create("Discover Playlist").done(function(playlist) {
