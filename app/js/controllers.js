@@ -2,16 +2,29 @@
 
 /* Controllers */
 
+//+ Jonas Raoni Soares Silva
+//@ http://jsfromhell.com/array/shuffle [v1.0]
+function shuffle(o){ //v1.0
+    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+};
+
 angular.module('myApp.controllers', []).
-  controller('MusicCtrl', ['$scope', '$http', 'App', function($scope, $http, App) {
+  controller('MusicCtrl', ['$scope', '$http', 'App', 'URIConverter', function($scope, $http, App, URIConverter) {
         $scope.trackCount = App.getLocalObject('trackCount');
         $scope.tracks = App.getLocalObject('tracks', true);
-        $scope.topArtists = App.getLocalObject('topArtists', true);;
+        $scope.topArtists = App.getLocalObject('topArtists', true);
+        $scope.topArtistsURIs = App.getLocalObject('topArtistsURIs',true);
         $scope.profileID = App.getLocalObject('profileID');
         $scope.playlistSongs = [];
+        $scope.playlistList = null;
         $scope.mainstreamness = App.getLocalObject('mainstreamness');
         $scope.freshness = App.getLocalObject('freshness');
         $scope.anonUserID = null;
+
+        $scope.randomToplistSubset = [];
+        $scope.suggestedArtists = null;
+
 
 
         require(['$api/models','$api/models#User','$api/models#Session'], function(models) {
@@ -20,6 +33,44 @@ angular.module('myApp.controllers', []).
                 $scope.anonUserID = u.identifier;
             });
         });
+
+        $scope.recommendedArtists = function(){
+            if($scope.topArtists.length != 0){
+                var newArtists = shuffle($scope.topArtistsURIs);
+                var topCount = 5;
+                if(newArtists.length < 5){
+                    topCount = newArtists.length;
+                }
+
+
+
+                var url = "http://developer.echonest.com/api/v4/artist/similar?api_key=VOW1HBCF5U0DHVUDM&bucket=id:spotify-WW"
+                $scope.randomToplistSubset = [];
+                var subsetArray = [];
+                for(var i = 0; i<topCount; i++){
+                    url+="&id="+newArtists[i].replace("spotify","spotify-WW");
+                    subsetArray.push(newArtists[i]);
+                    URIConverter.toName(newArtists[i])
+                    .then(function(artist){
+                        $scope.randomToplistSubset.push(artist);
+                    });
+                }
+
+
+                $http({
+                    'method':'GET',
+                    'url': url
+                })
+                    .success(function(data){
+                        if(data["response"]["artists"]){
+                            $scope.suggestedArtists = data["response"]["artists"];
+                        }
+                    })
+
+            }
+
+        }
+
 
         $scope.makePlaylist = function(){
 
@@ -77,9 +128,12 @@ angular.module('myApp.controllers', []).
             require(['$api/toplists#Toplist'], function(Toplist) {
                 var toplist = Toplist.forCurrentUser();
                 toplist.artists.snapshot().done(function(userTopArtists){
-                    if(userTopArtists["_meta"]){
+                    alert(JSON.stringify(userTopArtists));
+                    if(userTopArtists["_meta"] && userTopArtists["_uris"]){
                         $scope.topArtists = userTopArtists["_meta"];
                         App.storeLocalObject('topArtists',JSON.stringify($scope.topArtists));
+                        $scope.topArtistsURIs = userTopArtists["_uris"];
+                        App.storeLocalObject('topArtistsURIs',JSON.stringify($scope.topArtistsURIs));
                     }
 
                 })
@@ -111,15 +165,21 @@ angular.module('myApp.controllers', []).
                 .success(function(data){
                     var songs = data["response"]["songs"];
 
-                    for(var i=0; i<songs.length; i++){
-                        if(songs[i]["tracks"][0]){
-                            $scope.playlistSongs.push(songs[i]["tracks"][0]["foreign_id"].replace("spotify-WW","spotify"));
-                        }
+                    require(['$api/models'], function(models) {
+                        for(var i=0; i<songs.length; i++){
+                            if(songs[i]["tracks"][0]){
+                                //alert("Song: "+songs[i]["tracks"][0]["foreign_id"].replace("spotify-WW","spotify"))
+                                $scope.playlistSongs.push(models.Track.fromURI(songs[i]["tracks"][0]["foreign_id"].replace("spotify-WW","spotify")));
+                            }
 
-                    }
+                        }
+                    });
+
+
+
                     if($scope.playlistSongs.length != 0){
                         require(['$api/models'], function(models) {
-                            models.Playlist.create("Discover Playlist").done(function(playlist) {
+                            models.Playlist.createTemporary("Discover Playlist").done(function(playlist) {
                                 playlist.load("tracks").done(function(playlist) {
                                     var tracks = [];
                                     for (var i = 0; i < songs.length; i++) {
@@ -128,6 +188,13 @@ angular.module('myApp.controllers', []).
                                         }
                                     }
                                     playlist.tracks.add(tracks);
+                                    require(['$views/list#List'], function(List) {
+                                        //$scope.playlistList =
+                                        var list = List.forPlaylist(playlist);
+                                        document.body.appendChild(list.node);
+                                        list.init();
+                                        //$scope.playlistList.init();
+                                    });
                                 });
                             });
                         });

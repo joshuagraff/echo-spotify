@@ -7,6 +7,7 @@
         <p>
             <button ng-click="sendTastes()">Load tasteProfile</button>
             <button ng-click="getRandomPlaylist()">Show me some new songs!</button>
+            <button ng-click="recommendedArtists()">Show me some artists!</button>
         </p>
         <div ng-if="mainstreamness != null && freshness != null">
             <p>
@@ -16,16 +17,29 @@
                 Freshness: {{freshness}}%
             </p>
         </div>
+        <div ng-if="randomToplistSubset.length != 0 && suggestedArtists != null">
+            You've been listening to <p ng-repeat="artist in randomToplistSubset">{{artist.name}}, <div id="artistImage" artist-img></div> </p>lately.. Listen to these guys!
+            <span ng-repeat="artist in suggestedArtists"><br/>{{artist.name}}</span>
+        </div>
+        <!--<table class="scopesList table" ng-if="playlistSongs.length != 0">-->
+            <!--<thead><tr>-->
+                <!--<span>Playlist:</span>-->
+            <!--</tr></thead>-->
+            <!--<tbody>-->
+            <!--<tr ng-repeat="song in playlistSongs">-->
+                <!--<td>{{song}}</td>-->
+            <!--</tr>-->
+            <!--</tbody>-->
+        <!--</table>-->
+        <div ng-if="playlistList">
+            {{playlistList}}
+        </div>
         <div ng-if="topArtists != null">
             <h1>Top Artists:</h1>
             <ul style="list-style-type: none;" ng-repeat="artist in topArtists">
                 <li>{{artist.name}}</li>
             </ul>
         </div>
-
-        <ul style="list-style-type: none;" ng-repeat="song in playlistSongs">
-            <li>{{song}}</li>
-        </ul>
     </div>
 
 </div>
