@@ -18,8 +18,16 @@
             </p>
         </div>
         <div ng-if="randomToplistSubset.length != 0 && suggestedArtists != null">
-            You've been listening to <p ng-repeat="artist in randomToplistSubset">{{artist.name}}, <div id="artistImage" artist-img></div> </p>lately.. Listen to these guys!
-            <span ng-repeat="artist in suggestedArtists"><br/>{{artist.name}}</span>
+            You've been listening to
+            <p ng-repeat="topArtist in randomToplistSubset">
+                <artist-image id="artistImage" uriValue="{{topArtist.uri}}" artistName="{{topArtist.name}}"></artist-image>
+            </p>
+            lately.. Listen to these guys!
+            <carousel interval="6000">
+                <slide ng-repeat="newArtist in suggestedArtists" active="artist.active">
+                    <artist-image id="artistImage" uriValue="{{newArtist.uri}}" artistName="{{newArtist.name}}"></artist-image>
+                </slide>
+            </carousel>
         </div>
         <!--<table class="scopesList table" ng-if="playlistSongs.length != 0">-->
             <!--<thead><tr>-->

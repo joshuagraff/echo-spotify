@@ -27,6 +27,16 @@ angular.module('myApp.services', [])
     }])
     .factory('URIConverter', ['$q', function($q) {
         var URIConverter = {
+            getImage: function (uri){
+                var deferred = $q.defer();
+                require(['$api/models','$api/models#Artist', '$views/image#Image'], function(models, Artist, Image) {
+                    models.Artist.fromURI(uri).load('name').done(function(artistObj){
+                        var artistImage = Image.forArtist(artistObj);
+                        deferred.resolve( artistImage );
+                    })
+                })
+                return deferred.promise;
+            },
             toURI: function(artistName){
 
             },
@@ -34,12 +44,7 @@ angular.module('myApp.services', [])
                 var deferred = $q.defer();
                 require(['$api/models','$api/models#Artist', '$views/image#Image'], function(models, Artist, Image) {
                     models.Artist.fromURI(uri).load('name').done(function(artistObj){
-                        var artistImage = Image.forArtist(artistObj);
-                        var JSONText = {name:artistObj.name.decodeForText(), artImage:artistImage };
-
-                        document.body.appendChild(artistImage.node);
-                        //alert(JSON.stringify(JSONText));
-                        deferred.resolve(JSONText);
+                        deferred.resolve({name:artistObj.name, uri:uri});
                     })
                 })
                 return deferred.promise;

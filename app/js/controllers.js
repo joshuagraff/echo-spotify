@@ -10,7 +10,7 @@ function shuffle(o){ //v1.0
 };
 
 angular.module('myApp.controllers', []).
-  controller('MusicCtrl', ['$scope', '$http', 'App', 'URIConverter', function($scope, $http, App, URIConverter) {
+  controller('MusicCtrl', ['$scope', '$http', 'App', 'URIConverter', '$sce', function($scope, $http, App, URIConverter, $sce) {
         $scope.trackCount = App.getLocalObject('trackCount');
         $scope.tracks = App.getLocalObject('tracks', true);
         $scope.topArtists = App.getLocalObject('topArtists', true);
@@ -63,7 +63,11 @@ angular.module('myApp.controllers', []).
                 })
                     .success(function(data){
                         if(data["response"]["artists"]){
-                            $scope.suggestedArtists = data["response"]["artists"];
+                            $scope.suggestedArtists = [];
+                            data["response"]["artists"].forEach(function(entry){
+                                var uri = ((entry.foreign_ids[0]).foreign_id.replace("spotify-WW","spotify"));
+                                $scope.suggestedArtists.push({uri:uri, name:entry.name});
+                            });
                         }
                     })
 
@@ -163,6 +167,7 @@ angular.module('myApp.controllers', []).
             })
 
                 .success(function(data){
+                    $scope.playlistSongs = [];
                     var songs = data["response"]["songs"];
 
                     require(['$api/models'], function(models) {
@@ -179,8 +184,9 @@ angular.module('myApp.controllers', []).
 
                     if($scope.playlistSongs.length != 0){
                         require(['$api/models'], function(models) {
-                            models.Playlist.createTemporary("Discover Playlist").done(function(playlist) {
-                                playlist.load("tracks").done(function(playlist) {
+                            models.Playlist.createTemporary("Discover Playlist").done(function(notLoadedPlaylist) {
+                                notLoadedPlaylist.load("tracks").done(function(playlist) {
+                                    playlist.tracks.clear();
                                     var tracks = [];
                                     for (var i = 0; i < songs.length; i++) {
                                         if($scope.playlistSongs[i]){
@@ -212,9 +218,6 @@ angular.module('myApp.controllers', []).
 
         $scope.sendTastes = function() {
             if($scope.tracks != null){ //Need artists
-                //var stringData = $.param({data: JSON.stringify([{item:{item_id:"royks",artist_name:"Royksopp"}},{item:{item_id:"inter",artist_name:"Interpol"}}])})
-                var url = 'http://developer.echonest.com/api/v4/catalog/update?api_key=VOW1HBCF5U0DHVUDM';
-                //alert("string data " +stringData);
 
 
                 var stringData = $.param(getData());
@@ -230,7 +233,4 @@ angular.module('myApp.controllers', []).
 
             }
         }
-  }])
-  .controller('MyCtrl2', [function() {
-
   }]);
