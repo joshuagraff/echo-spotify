@@ -9,7 +9,7 @@ angular.module('myApp.directives', []).
       elm.text(version);
     };
   }])
-    .directive('artistImage', ['URIConverter', function(URIConverter){
+    .directive('artistImage', ['URIConverter', 'PlaylistCreator', function(URIConverter, PlaylistCreator){
         return {
             restrict:'E',
             scope:{
@@ -17,12 +17,34 @@ angular.module('myApp.directives', []).
             },
             link: function(scope,elem,attrs){
                 URIConverter.getImage(attrs.urivalue).then(function(artistImage){
-                    elem.append(artistImage.node);
+                    var artistDiv = document.createElement('div');
+                    var artistImageDiv = document.createElement('div');
+                    var listDiv = document.createElement('div');
+
+
+                    artistImageDiv.className = 'artistImage';
+                    listDiv.className = 'artistList';
+                    artistDiv.className = 'artistDiv';
+
+
+                    artistImageDiv.appendChild(artistImage.node);
                     artistImage.setStyle('inset');
-                    artistImage.setSize(300,300);
-                    artistImage.setOverlay(attrs.artistname);
-                    artistImage.setPlayer(true);
+                    artistImage.setSize(600,600);
+
+                    //artistImage.setPlayer(true);
+                    PlaylistCreator.fromArtist(attrs.urivalue).then(function(playlist){
+                        //elem.append(playlist.node);
+                        if(playlist){
+                            artistImage.setOverlay(attrs.artistname);
+                            listDiv.appendChild(playlist.node);
+                            playlist.init();
+                        }
+                    })
+                    artistDiv.appendChild(artistImageDiv);
+                    artistDiv.appendChild(listDiv);
+                    elem.append(artistDiv);
                 })
+
             }
         }
     }]);

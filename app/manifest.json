@@ -37,5 +37,19 @@
 	"SupportedLanguages": [
 		"en"
 	],
-	"VendorIdentifier": "co.mager"
+	"VendorIdentifier": "co.mager",
+    "DefaultTabs": [
+        {
+            "arguments": "test",
+            "title":  { "en": "Home" }
+        },
+        {
+            "arguments": "test2",
+            "title": { "en": "Artists" }
+        },
+        {
+            "arguments": "test2",
+            "title": { "en": "Workout" }
+        }
+    ]
 }

@@ -28,3 +28,36 @@
   content: "";
   padding: 0;
 }
+
+.artistDiv{
+    text-align:center;
+    position: relative;
+    display: inline-block;
+    height: 600px;
+    width: 100%;
+}
+
+.artistImage{
+    margin:auto;
+  position: relative;
+  z-index: 40;
+  width: 600px;
+}
+
+.artistList{
+    text-align:left;
+    margin:auto;
+  position: relative;
+  top:-425px;
+  width:500px;
+  height: 250px;
+  z-index: 50;
+  opacity: 0.80;
+}
+
+.sp-list-item{
+
+}
+
+.sp-list-item-selected{
+}
