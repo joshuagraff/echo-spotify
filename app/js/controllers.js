@@ -21,6 +21,7 @@ angular.module('myApp.controllers', []).
         $scope.playlistList = null;
         $scope.mainstreamness = App.getLocalObject('mainstreamness');
         $scope.freshness = App.getLocalObject('freshness');
+        $scope.bannedArtists = App.getLocalObject('bannedArtists',true) || [];
         $scope.anonUserID = null;
 
         $scope.userToSearch = '';
@@ -32,6 +33,21 @@ angular.module('myApp.controllers', []).
         $scope.suggestedArtists = null;
 
         $scope.BPM_VAL = 150;
+
+
+        $scope.removeCurrentPlayingArtist = function(){
+            require(['$api/models'], function(models) {
+                if(models.player.playing){
+                    models.player.track.load('artists').done(function(track){
+                        if(track.artists[0]){
+                            $scope.bannedArtists.push(track.artists[0].uri);
+                            App.storeLocalObject('bannedArtists',JSON.stringify($scope.bannedArtists));
+                            models.player.skipToNextTrack();
+                        }
+                    })
+                }
+            });
+        };
 
         $scope.removeTasteProfile = function(){
             EchoTasteProfile.deleteProfile();
@@ -141,7 +157,7 @@ angular.module('myApp.controllers', []).
 
                         //Remove from related artists, then add them to the artist array
                         artist.relatedArtists.splice(relatedArtistPosition,1);
-                        if(artistRelatedArtist && !$scope.userArtists[artistRelatedArtist] && (_.indexOf(artistArray,artistRelatedArtist) === -1)){
+                        if(artistRelatedArtist && !$scope.userArtists[artistRelatedArtist] && (_.indexOf(artistArray,artistRelatedArtist) === -1) && (_.indexOf($scope.bannedArtists, artistRelatedArtist.uri) === -1)){
                             artistArray.push(artistRelatedArtist);
                         }
                     }

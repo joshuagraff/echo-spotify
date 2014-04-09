@@ -2,19 +2,19 @@
     <h1>Music app</h1>
     <div ng-controller="MusicCtrl">
         <p>Your taste profile ID: {{profileID}}</p>
-        <p><button ng-click="makePlaylist()">Load songs</button></p>
+        <p><button class="btn btn-default" ng-click="makePlaylist()">Load songs</button></p>
         <input name="ruleKey" id="ruleKeyInput" class="form-control" type="text" ng-model="userToSearch" placeholder="Playlist URI To Build From" />
-        <p><button ng-click="loadUserArtists()">Load your artists!</button></p>
+        <p><button class="btn btn-default" ng-click="loadUserArtists()">Load your artists!</button></p>
         <p>Total song count: {{trackCount}}</p>
         <p>Total artist count: {{userArtistsCount}}</p>
         <p>
-            <button ng-click="sendTastes()">Load tasteProfile</button>
-            <button ng-if="profileID" ng-click="getRandomPlaylist()">Show me some new songs!</button>
-            <button ng-click="recommendedArtists()">Show me some artists!</button>
-            <button ng-click="getSongsByBPM()">Show me some upbeat songs!</button>
-            <button ng-click="removeTasteProfile()">Remove taste profile!</button>
-            <button ng-click="loadRandomUserPlaylist()">Load Playlist From User Artists</button>
-            <button ng-click="makeRandomPlaylist()">Show the Playlist</button>
+            <button class="btn btn-default" ng-click="sendTastes()">Load tasteProfile</button>
+            <button class="btn btn-default" ng-if="profileID" ng-click="getRandomPlaylist()">Show me some new songs!</button>
+            <button class="btn btn-default" ng-click="recommendedArtists()">Show me some artists!</button>
+            <button class="btn btn-default" ng-click="getSongsByBPM()">Show me some upbeat songs!</button>
+            <button class="btn btn-default" ng-click="removeTasteProfile()">Remove taste profile!</button>
+            <button class="btn btn-default" ng-click="loadRandomUserPlaylist()">Load Playlist From User Artists</button>
+            <button class="btn btn-default" ng-click="makeRandomPlaylist()">Show the Playlist</button>
         </p>
         <div ng-if="mainstreamness != null && freshness != null">
             <p>
@@ -24,6 +24,7 @@
                 Freshness: {{freshness}}%
             </p>
         </div>
+        <button class="btn btn-default" ng-click="removeCurrentPlayingArtist()">Ban the currently playing artist!</button>
         <div ng-if="randomToplistSubset.length != 0 && suggestedArtists != null">
             You've been listening
             <carousel interval="6000">
