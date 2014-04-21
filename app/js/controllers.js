@@ -2,13 +2,6 @@
 
 /* Controllers */
 
-//+ Jonas Raoni Soares Silva
-//@ http://jsfromhell.com/array/shuffle [v1.0]
-function shuffle(o){ //v1.0
-    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-    return o;
-};
-
 angular.module('myApp.controllers', []).
   controller('MusicCtrl', ['$scope', '$http', 'App', 'URIConverter', 'EchoTasteProfile', '$q', function($scope, $http, App, URIConverter, EchoTasteProfile, $q) {
         $scope.trackCount = App.getLocalObject('trackCount');
@@ -31,15 +24,22 @@ angular.module('myApp.controllers', []).
 
         $scope.randomToplistSubset = [];
         $scope.suggestedArtists = null;
+        $scope.artistToBan = '';
 
         $scope.BPM_VAL = 150;
 
+        $scope.banArtist = function(){
+            if(_.indexOf($scope.bannedArtists, $scope.artistToBan) === -1){
+                $scope.bannedArtists.push($scope.artistToBan);
+                App.storeLocalObject('bannedArtists',JSON.stringify($scope.bannedArtists));
+            }
+        };
 
         $scope.removeCurrentPlayingArtist = function(){
             require(['$api/models'], function(models) {
                 if(models.player.playing){
                     models.player.track.load('artists').done(function(track){
-                        if(track.artists[0]){
+                        if(track.artists[0] && _.indexOf($scope.bannedArtists, track.artists[0].uri) === -1){
                             $scope.bannedArtists.push(track.artists[0].uri);
                             App.storeLocalObject('bannedArtists',JSON.stringify($scope.bannedArtists));
                             models.player.skipToNextTrack();
@@ -54,6 +54,21 @@ angular.module('myApp.controllers', []).
             App.removeLocalObject('profileID');
         };
 
+        function addArtistsFromPlaylist(playlistWithTracks){
+            var addDef = $q.defer();
+            var track;
+            for(var j = 0; j< playlistWithTracks.length; j++){
+                track = playlistWithTracks.get(j);
+                if($scope.userArtists[track.artists[0].uri]){
+                    $scope.userArtists[track.artists[0].uri].songs.push(track.uri);
+                }else{
+                    $scope.userArtists[track.artists[0].uri] = {songs:[track.uri], relatedArtists:track.artists[0].related};
+                }
+            }
+            addDef.resolve();
+            return addDef.promise;
+        }
+
         function findArtists(){
             var artistDef = $q.defer();
 
@@ -61,27 +76,41 @@ angular.module('myApp.controllers', []).
 
                 $scope.userArtists = {};
 
-                function collectionSnapshot(collection) {
-                    collection.tracks.snapshot().done(function(snapshot) {
-                        var track;
+                function collectionSnapshot(snapshot) {
+                        var playlist;
+                        var playlistCount = snapshot.length;
                         for (var i = 0; i < snapshot.length; i++) {
-                            track = snapshot.get(i);
-                            if($scope.userArtists[track.artists[0].uri]){
-                                $scope.userArtists[track.artists[0].uri].songs.push(track.uri);
-                            }else{
-                                $scope.userArtists[track.artists[0].uri] = {songs:[track.uri], relatedArtists:track.artists[0].related};
-                            }
+                            playlist = snapshot.get(i);
+                            playlist._collections();
+                            playlist.tracks.snapshot().done(function(playlistWithTracks){
+                                addArtistsFromPlaylist(playlistWithTracks).then(function(){
+                                    playlistCount--;
+                                    if(playlistCount === 0){
+                                        $scope.userArtistsCount = _.keys($scope.userArtists).length;
+                                        alert($scope.userArtistsCount + ' Artists Found');
+                                        artistDef.resolve();
+                                    }
+                                });
+                            });
                         }
-                        $scope.userArtistsCount = _.keys($scope.userArtists).length;
-                        artistDef.resolve();
-                    });
                 }
 
                 if($scope.userToSearch && $scope.userToSearch !== ''){
+                    //TODO: Make this work with playlists
+
                     var playlist = models.Playlist.fromURI($scope.userToSearch);
-                    playlist.load("tracks").done(collectionSnapshot);
+                    playlist._collections();
+                    playlist.tracks.snapshot().done(function(playlistWithTracks){
+                        addArtistsFromPlaylist(playlistWithTracks).then(function() {
+                            $scope.userArtistsCount = _.keys($scope.userArtists).length;
+                            alert($scope.userArtistsCount + ' Artists Found');
+                            artistDef.resolve();
+                        })
+                    });
                 }else{
-                    Library.forCurrentUser().load("tracks").done(collectionSnapshot);
+                    Library.forCurrentUser().load('playlists').done(function(collection){
+                        collection.playlists.snapshot().done(collectionSnapshot);
+                    });
                 }
             });
 
@@ -127,7 +156,7 @@ angular.module('myApp.controllers', []).
             var promiseArray = [];
             var artistObj, artistDef;
             for(var i = 0; i < artistArray.length; i++){
-                artistDef = $q.defer()
+                artistDef = $q.defer();
                 artistObj = models.Artist.fromURI(artistArray[i]);
                 var artistToplist = Toplist.forArtist(artistObj);
                 artistToplistTracks(artistToplist,artistDef,models,Toplist).then(function(promiseDef){
@@ -157,7 +186,7 @@ angular.module('myApp.controllers', []).
 
                         //Remove from related artists, then add them to the artist array
                         artist.relatedArtists.splice(relatedArtistPosition,1);
-                        if(artistRelatedArtist && !$scope.userArtists[artistRelatedArtist] && (_.indexOf(artistArray,artistRelatedArtist) === -1) && (_.indexOf($scope.bannedArtists, artistRelatedArtist.uri) === -1)){
+                        if(artistRelatedArtist && !$scope.userArtists[artistRelatedArtist] && (_.indexOf(artistArray,artistRelatedArtist) === -1) && (_.indexOf($scope.bannedArtists, artistRelatedArtist) === -1)){
                             artistArray.push(artistRelatedArtist);
                         }
                     }
@@ -216,7 +245,7 @@ angular.module('myApp.controllers', []).
             App.storeLocalObject('userArtistsCount',$scope.userArtistsCount);
             App.storeLocalObject('userArtists',JSON.stringify($scope.userArtists));
             getRandomArtists();
-        }
+        };
 
         require(['$api/models','$api/models#User','$api/models#Session'], function(models) {
             var user = models.User.fromURI('spotify:user:@');
@@ -227,7 +256,7 @@ angular.module('myApp.controllers', []).
 
         $scope.recommendedArtists = function(){
             if($scope.topArtists.length != 0){
-                var newArtists = shuffle($scope.topArtistsURIs);
+                var newArtists = _.shuffle($scope.topArtistsURIs);
                 var topCount = 5;
                 if(newArtists.length < 5){
                     topCount = newArtists.length;
