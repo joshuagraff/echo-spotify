@@ -96,8 +96,6 @@ angular.module('myApp.controllers', []).
                 }
 
                 if($scope.userToSearch && $scope.userToSearch !== ''){
-                    //TODO: Make this work with playlists
-
                     var playlist = models.Playlist.fromURI($scope.userToSearch);
                     playlist._collections();
                     playlist.tracks.snapshot().done(function(playlistWithTracks){
@@ -135,8 +133,6 @@ angular.module('myApp.controllers', []).
                         if(artistSongs.length < maxSongs){
                             maxSongs = artistSongs.length;
                         }
-
-//                        artistSongs = _.sample(artistSongs, maxSongs);
                         for (var j = 0; j < maxSongs; j++) {
                             if(artistSongs[j]){
                                 $scope.playlistSongs.push(models.Track.fromURI(artistSongs[j]));
@@ -292,10 +288,8 @@ angular.module('myApp.controllers', []).
                             });
                         }
                     })
-
             }
-
-        }
+        };
 
         $scope.getSongsByBPM = function(){
             $http({
@@ -312,7 +306,6 @@ angular.module('myApp.controllers', []).
 
                     require(['$api/models'], function(models) {
                         for(var i=0; i<songs.length; i++){
-                            //alert(JSON.stringify(songs[0]["audio_summary"]["tempo"]));
                             if(songs[i]["audio_summary"] && songs[i]["audio_summary"]["tempo"] && songs[i]["audio_summary"]["tempo"] >= BPM_VAL){
                                 $scope.workoutPlaylistSongs.push(models.Track.fromURI(songs[i]["request"]["track_id"].replace("spotify-WW","spotify")));
                             }
@@ -338,12 +331,7 @@ angular.module('myApp.controllers', []).
                 .error(function(err){
                     alert("fail "+err);
                 })
-
-
-
-
-
-        }
+        };
 
 
         $scope.makePlaylist = function(){
@@ -386,7 +374,7 @@ angular.module('myApp.controllers', []).
                 })
                 .error(function(err){
                     alert("fail "+JSON.stringify(err));
-                })
+                });
 
             require(['$api/library#Library'], function(Library) {
                 Library.forCurrentUser().load("tracks").done(function(library) {
@@ -438,11 +426,9 @@ angular.module('myApp.controllers', []).
                         }
                         playlist.tracks.add(tracks);
                         require(['$views/list#List'], function(List) {
-                            //$scope.playlistList =
                             var list = List.forPlaylist(playlist);
                             document.body.appendChild(list.node);
                             list.init();
-                            //$scope.playlistList.init();
                         });
                     });
                 });
@@ -467,7 +453,6 @@ angular.module('myApp.controllers', []).
                     require(['$api/models'], function(models) {
                         for(var i=0; i<songs.length; i++){
                             if(songs[i]["tracks"][0]){
-                                //alert("Song: "+songs[i]["tracks"][0]["foreign_id"].replace("spotify-WW","spotify"))
                                 $scope.playlistSongs.push(models.Track.fromURI(songs[i]["tracks"][0]["foreign_id"].replace("spotify-WW","spotify")));
                             }
 
@@ -482,13 +467,8 @@ angular.module('myApp.controllers', []).
                 })
                 .error(function(err){
                     alert("fail "+err);
-                })
-
-
-
-
-            //http://developer.echonest.com/api/v4/playlist/static?api_key=VOW1HBCF5U0DHVUDM&seed_catalog=CADPRLD14281476904&format=json&results=30&type=catalog-radio
-        }
+                });
+        };
 
         $scope.sendTastes = function() {
             if($scope.tracks != null){ //Need artists
