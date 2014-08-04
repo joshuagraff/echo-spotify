@@ -1,5 +1,5 @@
 <div class="container">
-    <h1>Music app</h1>
+    <h1>Tunecrawl Music Discovery Service</h1>
     <div ng-controller="MusicCtrl">
         <p>Your taste profile ID: {{profileID}}</p>
         <p><button class="btn btn-default" ng-click="makePlaylist()">Load songs</button></p>
@@ -14,7 +14,7 @@
             <button class="btn btn-default" ng-click="getSongsByBPM()">Show me some upbeat songs!</button>
             <button class="btn btn-default" ng-click="removeTasteProfile()">Remove taste profile!</button>
             <button class="btn btn-default" ng-click="loadRandomUserPlaylist()">Load Playlist From User Artists</button>
-            <button class="btn btn-default" ng-click="loadRandomUserPlaylistForSongs()">Load Playlist From User Artists</button>
+            <button class="btn btn-default" ng-click="loadRandomUserPlaylistForSongs()">Load Playlist From User Songs</button>
             <button class="btn btn-default" ng-click="makeRandomPlaylist()">Show the Playlist</button>
         </p>
         <div ng-if="mainstreamness != null && freshness != null">
@@ -30,7 +30,7 @@
         <p><button class="btn btn-default" ng-click="loadUserArtists()">Load your artists!</button></p>
         <button class="btn btn-default" ng-click="removeCurrentPlayingArtist()">Ban the currently playing artist!</button>
         <div ng-if="randomToplistSubset.length != 0 && suggestedArtists != null">
-            You've been listening
+            You've been listening to
             <carousel interval="6000">
                 <slide ng-repeat="topArtist in randomToplistSubset" active="artist.active">
                     <artist-image id="artistImage" uriValue="{{topArtist.uri}}" artistName="{{topArtist.name}}"></artist-image>
@@ -51,6 +51,9 @@
             <ul style="list-style-type: none;" ng-repeat="artist in topArtists">
                 <li>{{artist.name}}</li>
             </ul>
+        </div>
+        <div id="discoverPlaylist">
+            <h2 ng-if="playlistAdded" class="text-center">Discovery Playlist</h2>
         </div>
     </div>
 

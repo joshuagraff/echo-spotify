@@ -18,6 +18,7 @@ angular.module('myApp.controllers', []).
         $scope.anonUserID = null;
 
         $scope.userToSearch = '';
+        $scope.playlistAdded = false;
 
         $scope.userArtists = App.getLocalObject('userArtists', true) || {};
         $scope.userArtistsCount = App.getLocalObject('userArtistsCount');
@@ -243,6 +244,14 @@ angular.module('myApp.controllers', []).
             getRandomArtists();
         };
 
+        $scope.loadRandomUserPlaylistForSongs = function(){
+            getRandomSongs();
+        };
+
+        function getRandomSongs(){
+
+        }
+
         require(['$api/models','$api/models#User','$api/models#Session'], function(models) {
             var user = models.User.fromURI('spotify:user:@');
             user.load('username', 'name').done(function(u) {
@@ -320,7 +329,9 @@ angular.module('myApp.controllers', []).
                                     playlist.tracks.add($scope.workoutPlaylistSongs);
                                     require(['$views/list#List'], function(List) {
                                         var list = List.forPlaylist(playlist);
-                                        document.body.appendChild(list.node);
+                                        var playlistDiv = document.getElementById('discoverPlaylist');
+                                        $scope.playlistAdded = true;
+                                        playlistDiv.appendChild(list.node);
                                         list.init();
                                     });
                                 });
@@ -427,13 +438,16 @@ angular.module('myApp.controllers', []).
                         playlist.tracks.add(tracks);
                         require(['$views/list#List'], function(List) {
                             var list = List.forPlaylist(playlist);
-                            document.body.appendChild(list.node);
+                            var playlistDiv = document.getElementById('discoverPlaylist');
+                            $scope.playlistAdded = true;
+                            $scope.$apply();
+                            playlistDiv.appendChild(list.node);
                             list.init();
                         });
                     });
                 });
             });
-        }
+        };
 
         $scope.getRandomPlaylist = function() {
             var minVariety = .6;
